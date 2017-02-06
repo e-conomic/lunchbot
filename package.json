@@ -1,0 +1,29 @@
+{
+  "name": "econ-lunchbot",
+  "version": "1.0.0",
+  "description": "Fetch lunch information",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "lunch",
+    "e-conomic"
+  ],
+  "service": {
+    "registry": "public",
+    "ping": false
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ssnielsen/econ-lunchbot"
+  },
+  "author": "Søren Sønderby Nielsen",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "express": "^4.14.1",
+    "request": "^2.79.0"
+  }
+}
