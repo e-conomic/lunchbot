@@ -24,7 +24,7 @@ var controller = botkit.slackbot({
 	debug: false
 	//include "log: false" to disable logging
 	//or a "logLevel" integer from 0 to 7 to adjust logging verbosity
-})
+});
 
 // connect the bot to a stream of messages
 controller.spawn({
@@ -32,7 +32,7 @@ controller.spawn({
 }).startRTM()
 
 // give the bot something to listen for.
-controller.hears('lunch', ['direct_message','direct_mention','mention'], function(bot,message) {
+controller.hears('lunch', ['direct_message','direct_mention','mention'], function(bot, message) {
 	lunch.today(function (lunch, err) {
 		if (err) {
 			console.log("Error: " + err)
@@ -40,7 +40,6 @@ controller.hears('lunch', ['direct_message','direct_mention','mention'], functio
 			return
 		}
 
-		bot.reply(message, lunch.main)
-		bot.reply(message, lunch.side)
+		bot.reply(message, lunch.main + " | " + lunch.side);
 	})
-})
+});
