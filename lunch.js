@@ -4,11 +4,12 @@ var zpad = require('zpad')
 var currentWeekNumber = require('current-week-number')
 
 function mainQuery(weekNumber, weekdayNumber) {
-	return "div#" + zpad(weekNumber) + "-" + weekdayNumber + " .menu-row .row .title span"
+	return "div#w" + zpad(weekNumber) + "-" + weekdayNumber + " .menu-row .row .title span"
+
 }
 
 function sideQuery(weekNumber, weekdayNumber) {
-	return "div#" + zpad(weekNumber) + "-" + weekdayNumber + " .menu-row .row .description span"
+	return "div#w" + zpad(weekNumber) + "-" + weekdayNumber + " .menu-row .row .description span"
 }
 
 var lastFetchedForWeekdayNumber
