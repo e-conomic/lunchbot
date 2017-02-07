@@ -48,6 +48,14 @@ controller.hears('lunch', ['direct_message','direct_mention','mention'], functio
 	})
 });
 
+var weekdayMapping = {
+	monday: 0,
+	tuesday: 1,
+	wednesday: 2,
+	thursday: 3,
+	friday: 5
+}
+
 
 app.post('/slack/slash/lunch', function (req, res) {
 	console.log(req.body)
@@ -57,7 +65,7 @@ app.post('/slack/slash/lunch', function (req, res) {
 		return
 	}
 
-	lunch.today(function (lunch, err) {
+	var cb = function(lunch, err) {
 		if (err) {
 			console.log("Error: " + err)
 			return
@@ -74,7 +82,19 @@ app.post('/slack/slash/lunch', function (req, res) {
 				}]
 			}
 		})
-	})
+	}
+
+	var text = eq.body['text']
+
+	if (text) {
+		var weekdayNumber = weekdayMapping[text.toLowerCase()]
+
+		if (weekdayNumber) {
+			lunch.forDay(text, cb)
+		}
+	} else {
+		lunch.today(cb)
+	}
 
 	res.send()
 })

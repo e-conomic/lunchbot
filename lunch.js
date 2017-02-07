@@ -13,14 +13,21 @@ function sideQuery(weekNumber, weekdayNumber) {
 }
 
 var lastFetchedForWeekdayNumber
-var cachedLunch
+var cachedLunch = {}
 
 function today(cb) {
 	var date = new Date()
 	var weekdayNumber = date.getDay() - 1
+
+	forDay(weekdayNumber, cb)
+}
+
+function forDay(inputWeekdayNumber, cb) {
+	var date = new Date()
+	var weekdayNumber = inputWeekdayNumber || (date.getDay() - 1)
 	var weekNumber = currentWeekNumber()
 
-	if (lastFetchedForWeekdayNumber != weekdayNumber) {
+	if (!cachedLunch['' + weekdayNumber]) {
 		request('http://dk428.eurest.dk/k_benhavn/ugemenu', function (err, res, body) {
 			var $ = cheerio.load(body)
 			var lunch = {
@@ -28,14 +35,15 @@ function today(cb) {
 				side: $(sideQuery(weekNumber, weekdayNumber)).text().trim()
 			}
 			lastFetchedForWeekdayNumber = weekdayNumber
-			cachedLunch = lunch
+			cachedLunch['' + weekdayNumber] = lunch
 			cb(lunch)
 		})
 	} else {
-		cb(cachedLunch)
+		cb(cachedLunch['' + weekdayNumber])
 	}
 }
 
 module.exports = {
-	today: today
+	today: today,
+	forDay: forDay
 }
