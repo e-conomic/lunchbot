@@ -25,7 +25,9 @@
     "body-parser": "^1.16.0",
     "botkit": "^0.4.10",
     "cheerio": "^0.22.0",
+    "current-week-number": "^1.0.7",
     "express": "^4.14.1",
-    "request": "^2.79.0"
+    "request": "^2.79.0",
+    "zpad": "^0.5.0"
   }
 }
