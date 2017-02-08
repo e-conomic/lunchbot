@@ -84,7 +84,7 @@ app.post('/slack/slash/lunch', function (req, res) {
 		})
 	}
 
-	var text = eq.body['text']
+	var text = req.body['text']
 
 	if (text) {
 		var weekdayNumber = weekdayMapping[text.toLowerCase()]
