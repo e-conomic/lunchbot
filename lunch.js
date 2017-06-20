@@ -3,43 +3,48 @@ var cheerio = require('cheerio')
 var zpad = require('zpad')
 var currentWeekNumber = require('current-week-number')
 
-function mainQuery(weekNumber, weekdayNumber) {
-	return "div#w" + zpad(weekNumber) + "-" + weekdayNumber + " .menu-row .row .title span"
+let mainQuery = "div.element.title"
+let sideQuery = "div.element.description"
 
-}
-
-function sideQuery(weekNumber, weekdayNumber) {
-	return "div#w" + zpad(weekNumber) + "-" + weekdayNumber + " .menu-row .row .description span"
-}
-
-var lastFetchedForWeekdayNumber
 var cachedLunch = {}
+
+function buildCacheKey(weekNumber, weekdayNumber) {
+	return "" + weekNumber + "-" + weekdayNumber
+}
 
 function today(cb) {
 	var date = new Date()
-	var weekdayNumber = date.getDay() - 1
+	var weekdayNumber = date.getDay()
 
 	forDay(weekdayNumber, cb)
 }
 
-function forDay(inputWeekdayNumber, cb) {
-	var date = new Date()
-	var weekdayNumber = inputWeekdayNumber || (date.getDay() - 1)
-	var weekNumber = currentWeekNumber()
+function forDay(weekdayNumber, cb) {
+	let weekNumber = currentWeekNumber()
+	let cacheKey = buildCacheKey(weekNumber, weekdayNumber)
+	let fromCache = cachedLunch[cacheKey]
 
-	if (!cachedLunch['' + weekdayNumber]) {
+	if (fromCache) {
+		console.log("Cache hit")
+		cb(fromCache)
+	} else {
 		request('http://dk428.eurest.dk/k_benhavn/ugemenu', function (err, res, body) {
-			var $ = cheerio.load(body)
-			var lunch = {
-				main: $(mainQuery(weekNumber, weekdayNumber)).text().trim(),
-				side: $(sideQuery(weekNumber, weekdayNumber)).text().trim()
+			let $ = cheerio.load(body)
+			let mains = $(mainQuery)
+			let sides = $(sideQuery)
+			let mainData = mains[weekdayNumber-1].children[0]
+			let sideData = sides[weekdayNumber-1].children[0]
+			let lunch = {}
+
+			if (mainData) {
+				lunch['main'] = mainData.data.trim()
 			}
-			lastFetchedForWeekdayNumber = weekdayNumber
-			cachedLunch['' + weekdayNumber] = lunch
+			if (sideData) {
+				lunch['side'] = sideData.data.trim()
+			}
+			cachedLunch[cacheKey] = lunch
 			cb(lunch)
 		})
-	} else {
-		cb(cachedLunch['' + weekdayNumber])
 	}
 }
 

@@ -7,8 +7,29 @@ var request = require('request')
 
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.get('/', function (req, res) {
-	lunch.today(function (lunch, err) {
+app.get('/', (req, res) => {
+	lunch.today((lunch, err) => {
+		if (err) {
+			console.log("Error: " + err)
+			res.status(500).send(err)
+			return
+		}
+
+		res.send(lunch)
+	})
+})
+
+app.get('/:weekday', (req, res) => {
+	let weekday = req.params['weekday']
+	let weekdayNumber = weekdayMapping[weekday.toLowerCase()]
+
+	if (!weekdayNumber) {
+		console.log("Unknown weekday: " + weekday)
+		res.status(500)
+		return
+	}
+
+	lunch.forDay(weekdayNumber, (lunch, err) => {
 		if (err) {
 			console.log("Error: " + err)
 			res.status(500).send(err)
@@ -20,7 +41,7 @@ app.get('/', function (req, res) {
 })
 
 app.set('port', process.env.PORT || 3000)
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), () => {
 	console.log("Running on port " + app.get('port'))
 })
 
@@ -36,8 +57,8 @@ controller.spawn({
 }).startRTM()
 
 // give the bot something to listen for.
-controller.hears('lunch', ['direct_message','direct_mention','mention'], function(bot, message) {
-	lunch.today(function (lunch, err) {
+controller.hears('lunch', ['direct_message','direct_mention','mention'], (bot, message) => {
+	lunch.today((lunch, err) => {
 		if (err) {
 			console.log("Error: " + err)
 			bot.reply(message, "Could not grap lunch info :/")
@@ -49,15 +70,14 @@ controller.hears('lunch', ['direct_message','direct_mention','mention'], functio
 });
 
 var weekdayMapping = {
-	monday: 0,
-	tuesday: 1,
-	wednesday: 2,
-	thursday: 3,
-	friday: 5
+	'monday': 1,
+	'tuesday': 2,
+	'wednesday': 3,
+	'thursday': 4,
+	'friday': 5
 }
 
-
-app.post('/slack/slash/lunch', function (req, res) {
+app.post('/slack/slash/lunch', (req, res) => {
 	console.log(req.body)
 
 	if (req.body['token'] != process.env.SLACK_SLASH_LUNCH) {
@@ -65,7 +85,7 @@ app.post('/slack/slash/lunch', function (req, res) {
 		return
 	}
 
-	var cb = function(lunch, err) {
+	var cb = (lunch, err) => {
 		if (err) {
 			console.log("Error: " + err)
 			return
