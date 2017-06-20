@@ -45,30 +45,6 @@ app.listen(app.get('port'), () => {
 	console.log("Running on port " + app.get('port'))
 })
 
-var controller = botkit.slackbot({
-	debug: false
-	//include "log: false" to disable logging
-	//or a "logLevel" integer from 0 to 7 to adjust logging verbosity
-});
-
-// connect the bot to a stream of messages
-controller.spawn({
-	token: process.env.SLACKBOT_TOKEN,
-}).startRTM()
-
-// give the bot something to listen for.
-controller.hears('lunch', ['direct_message','direct_mention','mention'], (bot, message) => {
-	lunch.today((lunch, err) => {
-		if (err) {
-			console.log("Error: " + err)
-			bot.reply(message, "Could not grap lunch info :/")
-			return
-		}
-
-		bot.reply(message, lunch.main + " | " + lunch.side);
-	})
-});
-
 var weekdayMapping = {
 	'monday': 1,
 	'tuesday': 2,
