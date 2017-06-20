@@ -110,6 +110,7 @@ app.post('/slack/slash/lunch', (req, res) => {
 		var weekdayNumber = weekdayMapping[text.toLowerCase()]
 
 		if (weekdayNumber) {
+			console.log("1 " + weekdayNumber)
 			lunch.forDay(text, cb)
 		}
 	} else {
