@@ -86,8 +86,7 @@ app.post('/slack/slash/lunch', (req, res) => {
 		var weekdayNumber = weekdayMapping[text.toLowerCase()]
 
 		if (weekdayNumber) {
-			console.log("1 " + weekdayNumber)
-			lunch.forDay(text, cb)
+			lunch.forDay(weekdayNumber, cb)
 		}
 	} else {
 		lunch.today(cb)
