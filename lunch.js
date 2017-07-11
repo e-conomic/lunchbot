@@ -28,7 +28,7 @@ function forDay(weekdayNumber, cb) {
 		console.log("Cache hit")
 		cb(fromCache)
 	} else {
-		request('http://dk428.eurest.dk/k_benhavn/ugemenu', function (err, res, body) {
+		request('http://dk428.eurest.dk/k-benhavn/da/ugemenu', function (err, res, body) {
 			let $ = cheerio.load(body)
 			let mains = $(mainQuery)
 			let sides = $(sideQuery)
