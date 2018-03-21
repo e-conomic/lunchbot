@@ -1,7 +1,6 @@
 var express = require('express')
 var app = express()
 var lunch = require('./lunch.js')
-var botkit = require('botkit')
 var bodyParser = require('body-parser')
 var request = require('request')
 
