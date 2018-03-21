@@ -86,7 +86,7 @@ app.post('/slack/slash/lunch', (req, res) => {
 				.catch(errorHandler)
 		}
 	} else {
-		lunch.today(cb)
+		lunch.today()
 			.then(handler)
 			.catch(errorHandler)
 	}
