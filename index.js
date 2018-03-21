@@ -51,8 +51,6 @@ app.listen(app.get('port'), () => {
 })
 
 app.post('/slack/slash/lunch', (req, res) => {
-	console.log(req.body)
-
 	if (req.body['token'] != process.env.SLACK_SLASH_LUNCH) {
 		res.send()
 		return
