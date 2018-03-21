@@ -1,49 +1,52 @@
-var request = require('request')
-var cheerio = require('cheerio')
-var zpad = require('zpad')
-var currentWeekNumber = require('current-week-number')
+const request = require('request')
+const cheerio = require('cheerio')
+const zpad = require('zpad')
+const currentWeekNumber = require('current-week-number')
 
-let mainQuery = "div.element.title"
-let sideQuery = "div.element.description"
+const mainQuery = "div.element.title"
+const sideQuery = "div.element.description"
 
-var cachedLunch = {}
+const cachedLunch = {}
 
 function buildCacheKey(weekNumber, weekdayNumber) {
-	return "" + weekNumber + "-" + weekdayNumber
+	return `${weekNumber}-${weekdayNumber}`
 }
 
-function today(cb) {
-	var date = new Date()
-	var weekdayNumber = date.getDay()
+function today() {
+	const date = new Date()
+	const weekdayNumber = date.getDay()
 
-	forDay(weekdayNumber, cb)
+	return forDay(weekdayNumber)
 }
 
-function forDay(weekdayNumber, cb) {
-	let weekNumber = currentWeekNumber()
-	let cacheKey = buildCacheKey(weekNumber, weekdayNumber)
-	let fromCache = cachedLunch[cacheKey]
+function forDay(weekdayNumber) {
+	const weekNumber = currentWeekNumber()
+	const cacheKey = buildCacheKey(weekNumber, weekdayNumber)
+	const fromCache = cachedLunch[cacheKey]
 
 	if (fromCache) {
 		console.log("Cache hit")
-		cb(fromCache)
+		return Promise.resolve(fromCache)
 	} else {
-		request('http://dk428.eurest.dk/k-benhavn/da/ugemenu', function (err, res, body) {
-			let $ = cheerio.load(body)
-			let mains = $(mainQuery)
-			let sides = $(sideQuery)
-			let mainData = mains[weekdayNumber-1].children[0]
-			let sideData = sides[weekdayNumber-1].children[0]
-			let lunch = {}
+		return new Promise((resolve, reject) => {
+			request('http://dk428.eurest.dk/k-benhavn/da/ugemenu', (err, res, body) => {
+				const $ = cheerio.load(body)
+				const mains = $(mainQuery)
+				const sides = $(sideQuery)
+				const mainData = mains[weekdayNumber - 1].children[0]
+				const sideData = sides[weekdayNumber - 1].children[0]
+				const lunch = {}
 
-			if (mainData) {
-				lunch['main'] = mainData.data.trim()
-			}
-			if (sideData) {
-				lunch['side'] = sideData.data.trim()
-			}
-			cachedLunch[cacheKey] = lunch
-			cb(lunch)
+				if (mainData) {
+					lunch['main'] = mainData.data.trim()
+				}
+				if (sideData) {
+					lunch['side'] = sideData.data.trim()
+				}
+
+				cachedLunch[cacheKey] = lunch
+				resolve(lunch)
+			})
 		})
 	}
 }

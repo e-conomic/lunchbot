@@ -1,26 +1,33 @@
-var express = require('express')
-var app = express()
-var lunch = require('./lunch.js')
-var bodyParser = require('body-parser')
-var request = require('request')
+const express = require('express')
+const app = express()
+const lunch = require('./lunch.js')
+const bodyParser = require('body-parser')
+const request = require('request')
+
+const weekdayMapping = {
+	'monday': 1,
+	'tuesday': 2,
+	'wednesday': 3,
+	'thursday': 4,
+	'friday': 5
+}
 
 app.use(bodyParser.urlencoded({ extended: false }))
 
 app.get('/', (req, res) => {
-	lunch.today((lunch, err) => {
-		if (err) {
+	lunch.today()
+		.then(lunch => {
+			res.send(lunch)
+		})
+		.catch(err => {
 			console.log("Error: " + err)
 			res.status(500).send(err)
-			return
-		}
-
-		res.send(lunch)
-	})
+		})
 })
 
 app.get('/:weekday', (req, res) => {
-	let weekday = req.params['weekday']
-	let weekdayNumber = weekdayMapping[weekday.toLowerCase()]
+	const weekday = req.params['weekday']
+	const weekdayNumber = weekdayMapping[weekday.toLowerCase()]
 
 	if (!weekdayNumber) {
 		console.log("Unknown weekday: " + weekday)
@@ -28,29 +35,20 @@ app.get('/:weekday', (req, res) => {
 		return
 	}
 
-	lunch.forDay(weekdayNumber, (lunch, err) => {
-		if (err) {
+	lunch.forDay(weekdayNumber)
+		.then(lunch => {
+			res.send(lunch)
+		})
+		.catch(err => {
 			console.log("Error: " + err)
 			res.status(500).send(err)
-			return
-		}
-
-		res.send(lunch)
-	})
+		})
 })
 
 app.set('port', process.env.PORT || 3000)
 app.listen(app.get('port'), () => {
 	console.log("Running on port " + app.get('port'))
 })
-
-var weekdayMapping = {
-	'monday': 1,
-	'tuesday': 2,
-	'wednesday': 3,
-	'thursday': 4,
-	'friday': 5
-}
 
 app.post('/slack/slash/lunch', (req, res) => {
 	console.log(req.body)
@@ -60,12 +58,7 @@ app.post('/slack/slash/lunch', (req, res) => {
 		return
 	}
 
-	var cb = (lunch, err) => {
-		if (err) {
-			console.log("Error: " + err)
-			return
-		}
-
+	const handler = lunch => {
 		request({
 			method: 'POST',
 			uri: req.body['response_url'],
@@ -79,16 +72,25 @@ app.post('/slack/slash/lunch', (req, res) => {
 		})
 	}
 
-	var text = req.body['text']
+	const errorHandler = error => {
+		console.log("Error: " + err)
+		return
+	}
+
+	const text = req.body['text']
 
 	if (text) {
-		var weekdayNumber = weekdayMapping[text.toLowerCase()]
+		const weekdayNumber = weekdayMapping[text.toLowerCase()]
 
 		if (weekdayNumber) {
-			lunch.forDay(weekdayNumber, cb)
+			lunch.forDay(weekdayNumber)
+				.then(handler)
+				.catch(errorHandler)
 		}
 	} else {
 		lunch.today(cb)
+			.then(handler)
+			.catch(errorHandler)
 	}
 
 	res.send()
