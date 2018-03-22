@@ -61,7 +61,7 @@ app.post('/slack/slash/lunch', (req, res) => {
 			method: 'POST',
 			uri: req.body['response_url'],
 			json: {
-				response_type: "in_channel",
+				response_type: "ephemeral",
 				text: lunch.main,
 				attachments: [{
 					text: lunch.side
