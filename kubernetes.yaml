@@ -1,0 +1,69 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: lunchbot
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: lunchbot
+    spec:
+      containers:
+      - name: lunchbot
+        image: lunchbot:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        readinessProbe: &default_probe
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 3
+          timeoutSeconds: 2
+        livenessProbe: *default_probe
+        env:
+          - name: SLACK_SLASH_LUNCH
+            valueFrom:
+              secretKeyRef:
+                name: lunchbot
+                key: slackToken
+          - name: PORT
+            valueFrom:
+              configMapKeyRef:
+                name: nodejs
+                key: port
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: lunchbot
+spec:
+  selector:
+    app: lunchbot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: lunchbot
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: lunchbot.e-conomic.ws
+    http: &http_rules
+      paths:
+      - backend:
+          serviceName: lunchbot
+          servicePort: 80
+  - host: lunchbot.staging.e-conomic.ws
+    http: *http_rules
+  - host: lunchbot.playground.e-conomic.ws
+    http: *http_rules
+---
