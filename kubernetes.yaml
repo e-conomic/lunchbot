@@ -11,16 +11,16 @@ spec:
     spec:
       containers:
       - name: lunchbot
-        image: lunchbot:latest
+        image: quay.io/economic/lunchbot:latest
         imagePullPolicy: Always
         ports:
-        - containerPort: 80
+        - containerPort: 3000
         readinessProbe: &default_probe
           httpGet:
             path: /
-            port: 80
-          initialDelaySeconds: 3
-          timeoutSeconds: 2
+            port: 3000
+          initialDelaySeconds: 7
+          timeoutSeconds: 5
         livenessProbe: *default_probe
         env:
           - name: SLACK_SLASH_LUNCH
@@ -28,13 +28,10 @@ spec:
               secretKeyRef:
                 name: lunchbot
                 key: slackToken
-          - name: PORT
-            valueFrom:
-              configMapKeyRef:
-                name: nodejs
-                key: port
       nodeSelector:
         beta.kubernetes.io/os: linux
+      imagePullSecrets:
+        - name: quay-ops-ro
 ---
 kind: Service
 apiVersion: v1
@@ -46,7 +43,7 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 80
+      targetPort: 3000
 ---
 kind: Ingress
 apiVersion: extensions/v1beta1
@@ -61,7 +58,7 @@ spec:
       paths:
       - backend:
           serviceName: lunchbot
-          servicePort: 80
+          servicePort: 3000
   - host: lunchbot.staging.e-conomic.ws
     http: *http_rules
   - host: lunchbot.playground.e-conomic.ws
