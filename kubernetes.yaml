@@ -42,25 +42,26 @@ spec:
     app: lunchbot
   ports:
     - protocol: TCP
-      port: 80
+      port: 443
       targetPort: 3000
 ---
 kind: Ingress
 apiVersion: extensions/v1beta1
 metadata:
   name: lunchbot
+  labels:
+    app: lunchbot
   annotations:
     kubernetes.io/ingress.class: "nginx"
 spec:
+  tls:
+    - hosts:
+      - lunchbot.e-conomic.ws
+      secretName: star-econ-prod-secret
   rules:
   - host: lunchbot.e-conomic.ws
-    http: &http_rules
+    http:
       paths:
       - backend:
           serviceName: lunchbot
-          servicePort: 3000
-  - host: lunchbot.staging.e-conomic.ws
-    http: *http_rules
-  - host: lunchbot.playground.e-conomic.ws
-    http: *http_rules
----
+          servicePort: 443
