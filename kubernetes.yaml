@@ -55,7 +55,7 @@ spec:
   tls:
     - hosts:
       - lunchbot.e-conomic.ws
-      secretName: star-econ-prod-secret
+      secretName: star-prod-econ-secret
   rules:
   - host: lunchbot.e-conomic.ws
     http:
