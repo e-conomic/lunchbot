@@ -30,8 +30,6 @@ spec:
                 key: slackToken
       nodeSelector:
         beta.kubernetes.io/os: linux
-      imagePullSecrets:
-        - name: quay-ops-ro
 ---
 kind: Service
 apiVersion: v1
